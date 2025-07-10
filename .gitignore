@@ -1,0 +1,6 @@
+# Ignorar arquivos de banco de dados SQLite
+instance/*.db
+# Outros arquivos e pastas que você não quer versionar podem ser adicionados abaixo
+__pycache__/
+*.pyc
+.env
