@@ -1,0 +1,156 @@
+/* Força verde IFB em todos os elementos Bootstrap e sobrescreve azul do Bootstrap 5 */
+:root {
+    --verde-ifb: #2E7D32;
+    --branco: #FFFFFF;
+}
+
+/* Cores da paleta */
+:root {
+    --verde-ifb: #2E7D32;  /* Verde IFB */
+    --vermelho-ifb: #388e3c;  /* Verde escuro para botões de alerta */
+    --branco: #FFFFFF;
+    --cinza-claro: #F8F9FA;
+}
+
+/* Estilos gerais */
+body {
+    background-color: var(--branco);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Navbar personalizada */
+.navbar {
+    box-shadow: 0 2px 4px rgba(46, 125, 50, 0.1);
+    background-color: var(--verde-ifb) !important;
+}
+
+.navbar .navbar-brand, .navbar .nav-link, .navbar .navbar-toggler-icon {
+    color: var(--branco) !important;
+}
+
+.navbar .nav-link.active, .navbar .nav-link:focus, .navbar .nav-link:hover {
+    color: #e8f5e9 !important;
+    background-color: var(--verde-ifb) !important;
+}
+
+/* Botões */
+.btn-primary, .btn-primary:visited, .btn-primary:active, .btn-primary:focus, .btn-primary:hover {
+    background-color: var(--verde-ifb) !important;
+    border-color: var(--verde-ifb) !important;
+    color: var(--branco) !important;
+    box-shadow: none !important;
+}
+
+.btn-outline-primary, .btn-outline-primary:visited, .btn-outline-primary:active, .btn-outline-primary:focus, .btn-outline-primary:hover {
+    color: var(--verde-ifb) !important;
+    border-color: var(--verde-ifb) !important;
+    background-color: var(--branco) !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: var(--verde-ifb) !important;
+    color: var(--branco) !important;
+}
+
+.btn-danger {
+    background-color: var(--vermelho-ifb);
+    border-color: var(--vermelho-ifb);
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s;
+    border-radius: 8px;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background-color: var(--verde-ifb);
+    color: white;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+/* Alertas */
+.alert-danger {
+    background-color: #FFEBEE;
+    border-color: green;
+    color: var(--vermelho-ifb);
+}
+
+/* Formulários */
+.form-control:focus {
+    border-color: var(--verde-ifb);
+    box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.25);
+}
+
+/* Links */
+a {
+    color: var(--verde-ifb);
+}
+
+a:hover {
+    color: green;
+}
+
+/* Footer fixo no rodapé */
+footer {
+    background-color: var(--vermelho-ifb) !important;
+    color: white;
+}
+
+footer.bg-light {
+    background-color: var(--branco) !important;
+    color: var(--verde-ifb) !important;
+}
+
+/* Badges */
+.card-header.bg-primary, .badge.bg-primary, .nav-link.active, .nav-link:focus, .nav-link:hover, .nav-link, .navbar .nav-link, .navbar .nav-link:visited, .navbar, .navbar-dark, .navbar-dark .navbar-nav .nav-link, .navbar-dark .navbar-brand, .navbar-dark .navbar-toggler {
+    background-color: var(--verde-ifb) !important;
+    color: var(--branco) !important;
+    border: none !important;
+}
+
+.navbar .nav-link, .navbar .nav-link:visited, .navbar-dark .navbar-nav .nav-link {
+    color: var(--branco) !important;
+}
+
+.navbar .nav-link.active, .navbar .nav-link:focus, .navbar .nav-link:hover, .navbar-dark .navbar-nav .nav-link.active, .navbar-dark .navbar-nav .nav-link:focus, .navbar-dark .navbar-nav .nav-link:hover {
+    color: #e8f5e9 !important;
+    background-color: var(--verde-ifb) !important;
+}
+
+.badge.bg-light.text-primary {
+    background-color: var(--branco) !important;
+    color: var(--verde-ifb) !important;
+}
+
+/* Corrige avatar do professor para verde */
+.card-body img[src*="ui-avatars.com"] {
+    filter: hue-rotate(80deg) saturate(2.5) !important;
+}
+
+/* Remove azul do Bootstrap 5 */
+.bg-primary, .text-primary, .border-primary, .btn-primary, .btn-outline-primary, .badge.bg-primary, .navbar.bg-primary, .navbar-dark.bg-primary, .navbar .navbar-brand, .navbar .navbar-toggler-icon {
+    background-color: var(--verde-ifb) !important;
+    color: var(--branco) !important;
+    border-color: var(--verde-ifb) !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .navbar-brand img {
+        height: 24px;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+}

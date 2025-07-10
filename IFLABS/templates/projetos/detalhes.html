@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Detalhes do Projeto - IFB_LAB{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">IFB_LAB</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/projetos/listar">Projetos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/perfil">Perfil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container mt-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'success' if category == 'success' else category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="mb-0">{{ projeto.titulo }}</h2>
+                            <span class="badge bg-light text-primary">{{ projeto.status }}</span>
+                        </div>
+                        {% if current_user.is_authenticated and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id %}
+                        <form method="POST" action="{{ url_for('alterar_status_projeto', id=projeto.id) }}" class="mt-3">
+                            <div class="input-group">
+                                <label class="input-group-text" for="status">Status:</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="aberto" {% if projeto.status == 'aberto' %}selected{% endif %}>Aberto</option>
+                                    <option value="em processo" {% if projeto.status == 'em processo' %}selected{% endif %}>Em processo</option>
+                                    <option value="encerrado" {% if projeto.status == 'encerrado' %}selected{% endif %}>Encerrado</option>
+                                    <option value="finalizado" {% if projeto.status == 'finalizado' %}selected{% endif %}>Finalizado</option>
+                                </select>
+                                <button type="submit" class="btn btn-light">Salvar</button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h5 class="text-muted">{{ projeto.area_conhecimento }}</h5>
+                            <span class="badge bg-primary">{{ projeto.tipo_vaga }}</span>
+                        </div>
+                        <h4>Descrição do Projeto</h4>
+                        <p class="card-text">{{ projeto.descricao }}</p>
+                        <h4 class="mt-4">Requisitos</h4>
+                        <p>{{ projeto.requisitos }}</p>
+                        <div class="mt-4">
+                            <small class="text-muted">Postado por {{ projeto.autor.nome }} em {{ projeto.data_criacao.strftime('%d/%m/%Y às %H:%M') }}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h4>Membros do Projeto</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li><strong>Professor:</strong> {{ projeto.autor.nome }}</li>
+                            {% for membro in membros_projeto if membro.status == 'aceito' %}
+                            <li><strong>Aluno:</strong> {{ membro.matricula }}
+                                {% if current_user.is_authenticated and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id %}
+                                    <form method="POST" action="{{ url_for('remover_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm ms-2">Remover</button>
+                                    </form>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                            {% if current_user.is_authenticated and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id %}
+                                {% for membro in membros_projeto if membro.status == 'pendente' %}
+                                <li><strong>Pendente:</strong> {{ membro.matricula }}
+                                    <form method="POST" action="{{ url_for('aceitar_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-success btn-sm">Aceitar</button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('recusar_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">Recusar</button>
+                                    </form>
+                                </li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h4>Comentários</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('comentar_projeto', id=projeto.id) }}" class="mb-3">
+                            <div class="mb-2">
+                                <textarea class="form-control" name="comentario" placeholder="Escreva um comentário..." required></textarea>
+                                <input type="hidden" name="resposta_id" value="">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Comentar</button>
+                        </form>
+                        {% if comentarios %}
+                            <ul class="list-group">
+                                {% for c in comentarios %}
+                                <li class="list-group-item">
+                                    <strong>{{ nomes_autores[c.autor_matricula] }}</strong> <small class="text-muted">{{ c.data_envio.strftime('%d/%m/%Y %H:%M') }}</small><br>
+                                    {{ c.texto }}
+                                    <form method="POST" action="{{ url_for('comentar_projeto', id=projeto.id) }}" class="mt-2">
+                                        <input type="hidden" name="resposta_id" value="{{ c.id }}">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control" name="comentario" placeholder="Responder..." required>
+                                            <button type="submit" class="btn btn-outline-primary">Responder</button>
+                                        </div>
+                                    </form>
+                                    {% if c.respostas %}
+                                        <ul class="list-group mt-2">
+                                            {% for r in c.respostas %}
+                                            <li class="list-group-item">
+                                                <strong>{{ nomes_autores[r.autor_matricula] }}</strong> <small class="text-muted">{{ r.data_envio.strftime('%d/%m/%Y %H:%M') }}</small><br>
+                                                {{ r.texto }}
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">Nenhum comentário ainda.</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h4>Enviar Mensagem</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('enviar_mensagem_projeto', id=projeto.id) }}">
+                            <div class="mb-2">
+                                <select class="form-select" name="destinatario" required>
+                                    <option value="">Selecione destinatário</option>
+                                    {% if projeto.autor.matricula != current_user.matricula %}
+                                        <option value="{{ projeto.autor.matricula }}">Professor: {{ projeto.autor.nome }}</option>
+                                    {% endif %}
+                                    {% for membro in membros_projeto if membro.status == 'aceito' and membro.matricula != current_user.matricula %}
+                                        {% set aluno = None %}
+                                        {% for a in alunos if a.matricula == membro.matricula %}{% set aluno = a %}{% endfor %}
+                                        <option value="{{ membro.matricula }}">Aluno: {{ aluno.nome if aluno else membro.matricula }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <textarea class="form-control" name="mensagem" placeholder="Escreva sua mensagem..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Enviar Mensagem</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h4>Mensagens Recebidas</h4>
+                        <a href="{{ url_for('mensagens_projeto', id=projeto.id) }}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+                    </div>
+                    <div class="card-body">
+                        {% set mensagens = mensagens_recebidas if mensagens_recebidas is defined else [] %}
+                        {% if mensagens %}
+                            <ul class="list-group">
+                                {% for msg in mensagens[:5] %}
+                                <li class="list-group-item">
+                                    <strong>De:</strong> {{ msg.remetente_matricula }}<br>
+                                    <span>{{ msg.conteudo }}</span><br>
+                                    <small class="text-muted">{{ msg.data_envio.strftime('%d/%m/%Y %H:%M') }}</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">Nenhuma mensagem recebida.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h4>Ações</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if current_user.is_authenticated and current_user.tipo == 'aluno' %}
+                            {% set candidatura = None %}
+                            {% for membro in membros_projeto %}
+                                {% if membro.matricula == current_user.matricula %}
+                                    {% set candidatura = membro %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if candidatura is not none %}
+                                {% if candidatura.status == 'pendente' %}
+                                    <form method="POST" action="{{ url_for('cancelar_candidatura', id=projeto.id) }}">
+                                        <button type="submit" class="btn btn-warning w-100">Cancelar Candidatura</button>
+                                    </form>
+                                    <div class="alert alert-info mt-2">Já candidatado. Aguarde aprovação do professor.</div>
+                                {% elif candidatura.status == 'aceito' %}
+                                    <div class="alert alert-success">Você foi aceito neste projeto!</div>
+                                {% elif candidatura.status == 'recusado' %}
+                                    <div class="alert alert-danger">Sua candidatura foi recusada.</div>
+                                {% endif %}
+                            {% else %}
+                            <form method="POST" action="{{ url_for('candidatar_projeto', id=projeto.id) }}">
+                                <button type="submit" class="btn btn-primary w-100">Candidatar-se</button>
+                            </form>
+                            {% endif %}
+                        {% elif current_user.is_authenticated and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id %}
+                            <h5>Candidaturas Pendentes</h5>
+                            {% for membro in membros_projeto if membro.status == 'pendente' %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Aluno: {{ membro.matricula }}</span>
+                                <form method="POST" action="{{ url_for('aceitar_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">Aceitar</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('recusar_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Recusar</button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <div class="text-muted">Nenhuma candidatura pendente.</div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <a href="/login">Faça login</a> como aluno para se candidatar a este projeto.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h4>Professor Responsável</h4>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <img src="https://ui-avatars.com/api/?name={{ projeto.autor.nome|replace(' ', '+') }}&background=0D6EFD&color=fff&size=100" 
+                                 alt="Professor" class="rounded-circle">
+                        </div>
+                        <h5>{{ projeto.autor.nome }}</h5>
+                        <p class="text-muted">{{ projeto.autor.email }}</p>
+                        <a href="/perfil" class="btn btn-outline-primary btn-sm">
+                            Ver Perfil Completo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    <!-- Rodapé -->
+    <footer class="bg-light text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">IFB_LAB &copy; 2023 - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

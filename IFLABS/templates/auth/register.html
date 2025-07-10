@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastre-se - IFB Projetos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2>Criar Conta</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('register') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.tipo.label(class="form-label") }}
+                        <div class="form-check">
+                            {% for subfield in form.tipo %}
+                            <div class="form-check form-check-inline">
+                                {{ subfield(class="form-check-input") }}
+                                {{ subfield.label(class="form-check-label") }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.nome.label(class="form-label") }}
+                        {{ form.nome(class="form-control") }}
+                        {% if form.nome.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.nome.errors[0] }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control") }}
+                        {% if form.email.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.email.errors[0] }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Utilize seu e-mail institucional do IFB (@ifb.edu.br)
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.matricula.label(class="form-label") }}
+                        {{ form.matricula(class="form-control") }}
+                        {% if form.matricula.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.matricula.errors[0] }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.curso.label(class="form-label") }}
+                        {{ form.curso(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.areas_interesse.label(class="form-label") }}
+                        {{ form.areas_interesse(class="form-control") }}
+                        <div class="form-text">
+                            Separe por vírgulas as áreas de seu interesse (ex: Computação, Matemática, Engenharia)
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+                        {{ form.username(class="form-control") }}
+                        {% if form.username.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.username.errors[0] }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control") }}
+                        {% if form.password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.password.errors[0] }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.password2.label(class="form-label") }}
+                        {{ form.password2(class="form-control") }}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Cadastrar
+                        </button>
+                    </div>
+
+                    <div class="mt-3 text-center">
+                        Já tem uma conta? <a href="{{ url_for('login') }}">Faça login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

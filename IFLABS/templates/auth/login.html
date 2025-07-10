@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Login - IFB Projetos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h4>Entrar</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="matricula" class="form-label">Matrícula</label>
+                        <input type="text" class="form-control" id="matricula" name="matricula" placeholder="Sua matrícula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Sua senha" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+                <hr>
+                <p>Não possui cadastro? <a href="{{ url_for('register') }}">Cadastre-se</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

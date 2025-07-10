@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Novo Projeto - IFB Projetos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">IFB Projetos</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/projetos/listar">Projetos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/perfil">Perfil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">Criar Novo Projeto</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="/projetos/criar">
+                            <!-- csrf_token removido -->
+                            
+                            <!-- Título -->
+                            <div class="mb-3">
+                                <label for="titulo" class="form-label">Título do Projeto</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required maxlength="140">
+                                <div class="invalid-feedback d-none" id="titulo-error"></div>
+                            </div>
+                            
+                            <!-- Área de Conhecimento -->
+                            <div class="mb-3">
+                                <label for="area_conhecimento" class="form-label">Área de Conhecimento</label>
+                                <select class="form-select" id="area_conhecimento" name="area_conhecimento" required>
+                                    <option value="" selected disabled>Selecione uma área</option>
+                                    <option value="Engenharia">Engenharia</option>
+                                    <option value="Computação">Computação</option>
+                                    <option value="Matemática">Matemática</option>
+                                    <option value="Administração">Administração</option>
+                                    <option value="Saúde">Saúde</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Tipo de Vaga -->
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Vaga</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_vaga" id="voluntario" value="voluntario" checked required>
+                                    <label class="form-check-label" for="voluntario">Voluntário</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_vaga" id="bolsista" value="bolsista">
+                                    <label class="form-check-label" for="bolsista">Bolsista</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_vaga" id="pesquisa" value="pesquisa">
+                                    <label class="form-check-label" for="pesquisa">Iniciação Científica</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_vaga" id="extensao" value="extensao">
+                                    <label class="form-check-label" for="extensao">Extensão</label>
+                                </div>
+                            </div>
+                            
+                            <!-- Descrição -->
+                            <div class="mb-3">
+                                <label for="descricao" class="form-label">Descrição do Projeto</label>
+                                <textarea class="form-control" id="descricao" name="descricao" rows="5" required></textarea>
+                                <div class="form-text">Descreva detalhadamente o projeto, objetivos e expectativas.</div>
+                            </div>
+                            
+                            <!-- Requisitos -->
+                            <div class="mb-3">
+                                <label for="requisitos" class="form-label">Requisitos</label>
+                                <textarea class="form-control" id="requisitos" name="requisitos" rows="3" required></textarea>
+                                <div class="form-text">Liste os conhecimentos ou habilidades necessárias para o projeto.</div>
+                            </div>
+                            
+                            <!-- Botões -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/projetos/listar" class="btn btn-secondary me-md-2">
+                                    Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Publicar Projeto
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="bg-light text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">IFB Projetos &copy; 2023 - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validação do formulário
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Validação do título
+            const titulo = document.getElementById('titulo');
+            if (titulo.value.trim() === '') {
+                document.getElementById('titulo-error').textContent = 'O título é obrigatório';
+                document.getElementById('titulo-error').classList.remove('d-none');
+                titulo.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                document.getElementById('titulo-error').classList.add('d-none');
+                titulo.classList.remove('is-invalid');
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        
+        // Adiciona mais áreas de conhecimento dinamicamente
+        const areaConhecimento = document.getElementById('area_conhecimento');
+        const areasAdicionais = [
+            'Física', 'Química', 'Biologia', 'Economia', 'Design',
+            'Educação', 'Agricultura', 'Arquitetura', 'Direito', 'Linguística'
+        ];
+        
+        areasAdicionais.forEach(function(area) {
+            const option = document.createElement('option');
+            option.value = area;
+            option.textContent = area;
+            areaConhecimento.appendChild(option);
+        });
+    });
+    </script>
+</body>
+</html>
