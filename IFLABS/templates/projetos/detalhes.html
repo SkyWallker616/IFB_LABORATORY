@@ -6,6 +6,76 @@
     <title>{% block title %}Detalhes do Projeto - IFB_LAB{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bs-primary: #2d7a32 !important;
+            --bs-primary-rgb: 45, 122, 50 !important;
+            --bs-link-color: #2d7a32 !important;
+            --bs-link-hover-color: #215b25 !important;
+        }
+        .bg-primary, .navbar, .card-header.bg-primary {
+            background-color: #2d7a32 !important;
+        }
+        .navbar-brand, .navbar-nav .nav-link, .text-white, .btn-primary, .card-header.bg-primary {
+            color: #fff !important;
+        }
+        .navbar-nav .nav-link.active, .navbar-nav .nav-link:focus, .navbar-nav .nav-link:hover {
+            color: #b6e2b8 !important;
+        }
+        .btn-primary {
+            background-color: #2d7a32 !important;
+            border-color: #2d7a32 !important;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #215b25 !important;
+            border-color: #215b25 !important;
+        }
+        .btn-outline-primary {
+            color: #2d7a32 !important;
+            border-color: #2d7a32 !important;
+        }
+        .btn-outline-primary:hover, .btn-outline-primary:focus {
+            background-color: #2d7a32 !important;
+            color: #fff !important;
+            border-color: #2d7a32 !important;
+        }
+        .badge.bg-primary, .list-group-item.active {
+            background-color: #2d7a32 !important;
+            color: #fff !important;
+            border-color: #2d7a32 !important;
+        }
+        .form-check-input:checked {
+            background-color: #2d7a32 !important;
+            border-color: #2d7a32 !important;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #2d7a32 !important;
+            box-shadow: 0 0 0 0.2rem rgba(45, 122, 50, 0.25) !important;
+        }
+        .alert-success {
+            background-color: #d1e7dd !important;
+            color: #215b25 !important;
+            border-color: #badbcc !important;
+        }
+        footer.bg-light, footer {
+            background-color: #fff !important;
+            color: #2d7a32 !important;
+            border-top: 1px solid #2d7a32 !important;
+        }
+        img[src*="ui-avatars.com"] {
+            background-color: #2d7a32 !important;
+        }
+        img[src*="ui-avatars.com"][src*="background=0D6EFD"] {
+            filter: hue-rotate(110deg) saturate(2.5);
+        }
+        /* Sobrescreve azul antigo */
+        .card-header {
+            border-bottom: 2px solid #2d7a32 !important;
+        }
+        footer a {
+            color: #2d7a32 !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
