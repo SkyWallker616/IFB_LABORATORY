@@ -16,6 +16,15 @@ class Projeto(db.Model):
     # Relacionamento para acessar membros
     membros = db.relationship('MembroProjeto', backref='projeto', lazy=True)
 
+class Admin(UserMixin, db.Model):
+    __tablename__ = 'admin'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    senha = db.Column(db.String(128), nullable=False)
+
+    def get_id(self):
+        return str(self.id)
+
 class Professor(UserMixin, db.Model):
     __tablename__ = 'professor'
     matricula = db.Column(db.String(20), primary_key=True)
@@ -24,6 +33,7 @@ class Professor(UserMixin, db.Model):
     senha = db.Column(db.String(128), nullable=False)
     sobre = db.Column(db.Text, nullable=True)
     foto_perfil = db.Column(db.String(255), nullable=True)  # Caminho da foto
+    aprovado = db.Column(db.Boolean, default=False)  # Novo campo para aprovação
     # outros campos...
     projetos = db.relationship('Projeto', backref='autor', lazy=True)
 
@@ -38,6 +48,7 @@ class Aluno(UserMixin, db.Model):
     senha = db.Column(db.String(128), nullable=False)
     sobre = db.Column(db.Text, nullable=True)
     foto_perfil = db.Column(db.String(255), nullable=True)  # Caminho da foto
+    aprovado = db.Column(db.Boolean, default=False)  # Novo campo para aprovação
     # outros campos...
     membros_projeto = db.relationship('MembroProjeto', backref='aluno', lazy=True)
 

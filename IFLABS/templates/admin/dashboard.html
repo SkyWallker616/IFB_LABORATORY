@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Administração{% endblock %}
+{% block content %}
+<h2>Painel do Administrador</h2>
+<h4>Professores</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Matrícula</th><th>Nome</th><th>Email</th><th>Aprovado</th><th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for prof in professores %}
+        <tr>
+            <td>{{ prof.matricula }}</td>
+            <td>{{ prof.nome }}</td>
+            <td>{{ prof.email }}</td>
+            <td>{{ 'Sim' if prof.aprovado else 'Não' }}</td>
+            <td>
+                {% if not prof.aprovado %}
+                <form method="POST" action="{{ url_for('admin_aprovar_usuario', tipo='professor', matricula=prof.matricula) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-success btn-sm">Aprovar</button>
+                </form>
+                {% endif %}
+                <form method="POST" action="{{ url_for('admin_excluir_usuario', tipo='professor', matricula=prof.matricula) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin_redefinir_senha', tipo='professor', matricula=prof.matricula) }}" style="display:inline;">
+                    <input type="text" name="nova_senha" placeholder="Nova senha" required>
+                    <button type="submit" class="btn btn-warning btn-sm">Redefinir Senha</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<h4>Alunos</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Matrícula</th><th>Nome</th><th>Email</th><th>Aprovado</th><th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for aluno in alunos %}
+        <tr>
+            <td>{{ aluno.matricula }}</td>
+            <td>{{ aluno.nome }}</td>
+            <td>{{ aluno.email }}</td>
+            <td>{{ 'Sim' if aluno.aprovado else 'Não' }}</td>
+            <td>
+                {% if not aluno.aprovado %}
+                <form method="POST" action="{{ url_for('admin_aprovar_usuario', tipo='aluno', matricula=aluno.matricula) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-success btn-sm">Aprovar</button>
+                </form>
+                {% endif %}
+                <form method="POST" action="{{ url_for('admin_excluir_usuario', tipo='aluno', matricula=aluno.matricula) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin_redefinir_senha', tipo='aluno', matricula=aluno.matricula) }}" style="display:inline;">
+                    <input type="text" name="nova_senha" placeholder="Nova senha" required>
+                    <button type="submit" class="btn btn-warning btn-sm">Redefinir Senha</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('admin_candidaturas') }}" class="btn btn-outline-primary">Moderar Candidaturas</a>
+{% endblock %}

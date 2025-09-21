@@ -298,9 +298,9 @@
                             {% if candidatura is not none %}
                                 {% if candidatura.status == 'pendente' %}
                                     <form method="POST" action="{{ url_for('cancelar_candidatura', id=projeto.id) }}">
-                                        <button type="submit" class="btn btn-warning w-100">Cancelar Candidatura</button>
+                                        <button type="submit" class="btn btn-warning w-100" disabled>Aguardando aprovação</button>
                                     </form>
-                                    <div class="alert alert-info mt-2">Já candidatado. Aguarde aprovação do professor.</div>
+                                    <div class="alert alert-info mt-2">Já candidatado. Aguarde o professor avaliar sua candidatura.</div>
                                 {% elif candidatura.status == 'aceito' %}
                                     <div class="alert alert-success">Você foi aceito neste projeto!</div>
                                 {% elif candidatura.status == 'recusado' %}

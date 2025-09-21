@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Moderação de Candidaturas{% endblock %}
+{% block content %}
+<h2>Moderação de Candidaturas</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th><th>Projeto</th><th>Matrícula</th><th>Status</th><th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in candidaturas %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.projeto.titulo }}</td>
+            <td>{{ c.matricula }}</td>
+            <td>{{ c.status }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('admin_aprovar_candidatura', id=c.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-success btn-sm">Aprovar</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin_recusar_candidatura', id=c.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Recusar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">Voltar ao Painel</a>
+{% endblock %}

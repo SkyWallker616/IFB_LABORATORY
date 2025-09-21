@@ -2,7 +2,7 @@ import os
 import jwt
 from time import time
 from datetime import datetime
-from src.models import db, Professor, Aluno, MembroProjeto, Projeto, MensagemProjeto, ComentarioProjeto  # Adicione este import no topo do arquivo
+from src.models import db, Professor, Aluno, MembroProjeto, Projeto, MensagemProjeto, ComentarioProjeto, Admin  # Adicione este import no topo do arquivo
 from werkzeug.security import check_password_hash
 from flask import Flask, render_template, redirect, url_for, flash, request, abort
 from flask_sqlalchemy import SQLAlchemy
@@ -171,6 +171,14 @@ def load_user(user_id):
     if user:
         user.tipo = 'professor'
         return user
+    # Buscar admin pelo id (inteiro)
+    try:
+        admin = Admin.query.filter_by(id=int(user_id)).first()
+        if admin:
+            admin.tipo = 'admin'
+            return admin
+    except (ValueError, TypeError):
+        pass
     return None
 
 
@@ -194,12 +202,121 @@ def login():
         if not user:
             user = Professor.query.filter_by(matricula=matricula).first()
         if user and check_password_hash(user.senha, senha):
+            if not user.aprovado:
+                flash('Seu cadastro ainda não foi aprovado pelo administrador.', 'warning')
+                return render_template('auth/login.html')
             login_user(user)
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('index'))
         else:
             flash('Matrícula ou senha inválidos.', 'danger')
     return render_template('auth/login.html')
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        senha = request.form.get('senha')
+        admin = Admin.query.filter_by(username=username).first()
+        if admin and check_password_hash(admin.senha, senha):
+            login_user(admin)
+            flash('Login de administrador realizado com sucesso!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Usuário ou senha inválidos.', 'danger')
+    return render_template('admin/login.html')
+
+@app.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+    if not hasattr(current_user, 'tipo') or current_user.tipo != 'admin':
+        abort(403)
+    professores = Professor.query.all()
+    alunos = Aluno.query.all()
+    return render_template('admin/dashboard.html', professores=professores, alunos=alunos)
+
+@app.route('/admin/aprovar_usuario/<tipo>/<matricula>', methods=['POST'])
+@login_required
+def admin_aprovar_usuario(tipo, matricula):
+    if not hasattr(current_user, 'tipo') or current_user.tipo != 'admin':
+        abort(403)
+    if tipo == 'professor':
+        user = Professor.query.filter_by(matricula=matricula).first()
+    else:
+        user = Aluno.query.filter_by(matricula=matricula).first()
+    if user:
+        user.aprovado = True
+        db.session.commit()
+        flash('Usuário aprovado com sucesso!', 'success')
+    else:
+        flash('Usuário não encontrado.', 'danger')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/excluir_usuario/<tipo>/<matricula>', methods=['POST'])
+@login_required
+def admin_excluir_usuario(tipo, matricula):
+    if not hasattr(current_user, 'tipo') or current_user.tipo != 'admin':
+        abort(403)
+    if tipo == 'professor':
+        user = Professor.query.filter_by(matricula=matricula).first()
+    else:
+        user = Aluno.query.filter_by(matricula=matricula).first()
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        flash('Usuário excluído com sucesso!', 'info')
+    else:
+        flash('Usuário não encontrado.', 'danger')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/redefinir_senha/<tipo>/<matricula>', methods=['POST'])
+@login_required
+def admin_redefinir_senha(tipo, matricula):
+    if not hasattr(current_user, 'tipo') or current_user.tipo != 'admin':
+        abort(403)
+    nova_senha = request.form.get('nova_senha')
+    if tipo == 'professor':
+        user = Professor.query.filter_by(matricula=matricula).first()
+    else:
+        user = Aluno.query.filter_by(matricula=matricula).first()
+    if user and nova_senha:
+        user.senha = generate_password_hash(nova_senha)
+        db.session.commit()
+        flash('Senha redefinida com sucesso!', 'success')
+    else:
+        flash('Usuário não encontrado ou senha inválida.', 'danger')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/candidaturas')
+@login_required
+def admin_candidaturas():
+    if not hasattr(current_user, 'tipo') or current_user.tipo != 'admin':
+        abort(403)
+    candidaturas = MembroProjeto.query.filter_by(status='pendente').all()
+    return render_template('admin/candidaturas.html', candidaturas=candidaturas)
+
+@app.route('/admin/aprovar_candidatura/<int:id>', methods=['POST'])
+@login_required
+def admin_aprovar_candidatura(id):
+    if not hasattr(current_user, 'tipo') or current_user.tipo != 'admin':
+        abort(403)
+    membro = MembroProjeto.query.get_or_404(id)
+    membro.status = 'aceito'
+    db.session.commit()
+    flash('Candidatura aprovada!', 'success')
+    return redirect(url_for('admin_candidaturas'))
+
+@app.route('/admin/recusar_candidatura/<int:id>', methods=['POST'])
+@login_required
+def admin_recusar_candidatura(id):
+    if not hasattr(current_user, 'tipo') or current_user.tipo != 'admin':
+        abort(403)
+    membro = MembroProjeto.query.get_or_404(id)
+    membro.status = 'recusado'
+    db.session.commit()
+    flash('Candidatura recusada!', 'info')
+    return redirect(url_for('admin_candidaturas'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -676,6 +793,16 @@ O link expirará em 10 minutos.
 def create_database():
     with app.app_context():
         db.create_all()
+        # Criação do admin diretamente aqui
+        from src.models import Admin
+        from werkzeug.security import generate_password_hash
+        if not Admin.query.filter_by(username='admin').first():
+            admin = Admin(username='admin', senha=generate_password_hash('admin123'))
+            db.session.add(admin)
+            db.session.commit()
+            print("Admin criado com sucesso!")
+        else:
+            print("Admin já existe.")
         print("Banco de dados criado com sucesso!")
 
 
