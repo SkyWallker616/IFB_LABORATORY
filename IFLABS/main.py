@@ -72,7 +72,7 @@ class RegistrationForm(FlaskForm):
                       choices=[('aluno', 'Aluno'), ('professor', 'Professor')],
                       validators=[DataRequired()])
     nome = StringField('Nome Completo', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('E-mail', validators=[DataRequired(), Email()])
     matricula = StringField('Matrícula', validators=[DataRequired()])
     curso = StringField('Curso')
     areas_interesse = StringField('Áreas de Interesse')
@@ -86,7 +86,7 @@ class RegistrationForm(FlaskForm):
 
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Solicitar Reset de Senha')
+    submit = SubmitField('Solicitar redefinição de Senha')
 
 
 class ResetPasswordForm(FlaskForm):
@@ -101,19 +101,21 @@ class ProjetoForm(FlaskForm):
     titulo = StringField('Título do Projeto',
                          validators=[DataRequired(),
                                      Length(max=140)])
-    area_conhecimento = SelectField('Área de Conhecimento',
-                                    choices=[('Engenharia', 'Engenharia'),
-                                             ('Computação', 'Computação'),
-                                             ('Matemática', 'Matemática'),
-                                             ('Administração',
-                                              'Administração'),
-                                             ('Saúde', 'Saúde')],
+    area_conhecimento = SelectField('Área do Conhecimento',
+                                    choices=[
+                                        ('Ciências Agrárias', 'Ciências Agrárias'),
+                                        ('Ciências Biológicas', 'Ciências Biológicas'),
+                                        ('Ciências da Saúde', 'Ciências da Saúde'),
+                                        ('Ciências Exatas e da Terra', 'Ciências Exatas e da Terra'),
+                                        ('Engenharias', 'Engenharias'),
+                                        ('Ciências Humanas', 'Ciências Humanas'),
+                                        ('Ciências Sociais Aplicadas', 'Ciências Sociais Aplicadas'),
+                                        ('Linguística, Letras e Artes', 'Linguística, Letras e Artes')
+                                    ],
                                     validators=[DataRequired()])
-    tipo_vaga = RadioField('Tipo de Vaga',
+    tipo_vaga = RadioField('Tipo de Bolsa',
                            choices=[('voluntario', 'Voluntário'),
-                                    ('bolsista', 'Bolsista'),
-                                    ('pesquisa', 'Iniciação Científica'),
-                                    ('extensao', 'Extensão')],
+                                    ('bolsista', 'Bolsista')],
                            validators=[DataRequired()])
     descricao = TextAreaField('Descrição do Projeto',
                               validators=[DataRequired()])
@@ -371,7 +373,7 @@ def reset_password_request():
         user = Aluno.query.filter_by(email=form.email.data).first() or Professor.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        flash('Verifique seu email para instruções de reset de senha')
+        flash('Verifique seu email para instruções de redefinição de senha')
         return redirect(url_for('login'))
 
     return render_template('auth/reset_password_request.html', form=form)
@@ -569,7 +571,7 @@ def aceitar_aluno(id, matricula):
         db.session.commit()
         flash('Aluno aceito no projeto!', 'success')
     else:
-        flash('Não foi possível aceitar o aluno.', 'danger')
+        flash('Ocorreu um erro.', 'danger')
     return redirect(url_for('detalhes_projeto', id=id))
 
 @app.route('/projetos/<int:id>/recusar_aluno/<matricula>', methods=['POST'])
@@ -584,7 +586,7 @@ def recusar_aluno(id, matricula):
         db.session.commit()
         flash('Aluno recusado.', 'info')
     else:
-        flash('Não foi possível recusar o aluno.', 'danger')
+        flash('Ocorreu um erro.', 'danger')
     return redirect(url_for('detalhes_projeto', id=id))
 
 
@@ -614,9 +616,9 @@ def editar_perfil():
     if sobre:
         current_user.sobre = sobre
         db.session.commit()
-        flash('Sobre atualizado com sucesso!', 'success')
+        flash('Campo atualizado com sucesso!', 'success')
     else:
-        flash('O campo Sobre não pode ficar vazio.', 'danger')
+        flash('Campo obrigatório.', 'danger')
     return redirect(url_for('perfil'))
 
 
@@ -630,7 +632,7 @@ def editar_perfil():
 def editar_nome():
     novo_nome = request.form.get('nome', '').strip()
     if not novo_nome:
-        flash('Nome não pode ficar vazio.', 'danger')
+        flash('Nome obregatório.', 'danger')
         return redirect(url_for('perfil'))
     current_user.nome = novo_nome
     db.session.commit()
@@ -774,12 +776,12 @@ def allowed_file(filename):
 
 def send_password_reset_email(user):
     token = user.get_reset_password_token()
-    msg = Message('Reset de Senha - IFB Projetos', recipients=[user.email])
-    msg.body = f'''Para resetar sua senha, clique no link abaixo:
+    msg = Message('Redefinição de Senha - IFB Projetos', recipients=[user.email])
+    msg.body = f'''Para redefinir sua senha, clique no link abaixo:
 
 {url_for('reset_password', token=token, _external=True)}
 
-Se você não solicitou este reset, ignore esta mensagem.
+Se você não solicitou a redefinição de senha, ignore esta mensagem.
 O link expirará em 10 minutos.
 '''
     mail.send(msg)
@@ -793,16 +795,16 @@ O link expirará em 10 minutos.
 def create_database():
     with app.app_context():
         db.create_all()
-        # Criação do admin diretamente aqui
+        # Criação do usuário admin 
         from src.models import Admin
         from werkzeug.security import generate_password_hash
         if not Admin.query.filter_by(username='admin').first():
             admin = Admin(username='admin', senha=generate_password_hash('admin123'))
             db.session.add(admin)
             db.session.commit()
-            print("Admin criado com sucesso!")
+            print("Administrador criado com sucesso!")
         else:
-            print("Admin já existe.")
+            print("Administrador já existe.")
         print("Banco de dados criado com sucesso!")
 
 
