@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import jwt
 from time import time
 from datetime import datetime
@@ -799,7 +800,10 @@ def create_database():
         from src.models import Admin
         from werkzeug.security import generate_password_hash
         if not Admin.query.filter_by(username='admin').first():
-            admin = Admin(username='admin', senha=generate_password_hash('admin123'))
+            load_dotenv()
+            admin_username = os.getenv('ADMIN_USERNAME', 'admin')
+            admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
+            admin = Admin(username=admin_username, senha=generate_password_hash(admin_password))
             db.session.add(admin)
             db.session.commit()
             print("Administrador criado com sucesso!")
@@ -817,6 +821,7 @@ def comentar_projeto(id):
         flash('Comentário vazio.', 'warning')
         return redirect(url_for('detalhes_projeto', id=id))
     from src.models import ComentarioProjeto
+
     comentario = ComentarioProjeto()
     comentario.id_projeto = id
     comentario.autor_matricula = current_user.matricula
