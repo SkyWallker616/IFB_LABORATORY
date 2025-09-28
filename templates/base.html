@@ -13,8 +13,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2E7D32;">  <!-- Verde escuro -->
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='images/IFB.png') }}" alt="IFB" height="30" class="d-inline-block align-top me-2">
-                IFB_LAB
+                <img src="{{ url_for('static', filename='images/iflab_logo.png') }}" alt="IFB" height="30" class="d-inline-block align-top me-2">
+                IFB LABs
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -83,6 +83,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+    <script>
+        // Auto-dismiss flash messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert-dismissible.fade.show');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 1500); // 1.5 segundos
+            });
+        });
+    </script>
+    {% endblock %}
 </body>
 </html>
