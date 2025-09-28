@@ -72,23 +72,51 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2E7D32;">  <!-- Verde escuro -->
         <div class="container">
-            <a class="navbar-brand" href="/">IFB_LAB</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/iflab_logo.png') }}" alt="IFB" height="30" class="d-inline-block align-top me-2">
+                IFB LABs
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/projetos/listar">Projetos</a>
+                        <a class="nav-link" href="{{ url_for('listar_projetos') }}">Projetos</a>
+                    </li>
+                    {% if current_user.is_authenticated and current_user.tipo == 'professor' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('criar_projeto') }}">Criar Projeto</a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.is_authenticated and current_user.tipo == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Painel Admin</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ current_user.nome }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('perfil') }}">Meu Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Sair</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Entrar</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/perfil">Perfil</a>
+                        <a class="nav-link" href="{{ url_for('register') }}">Cadastrar</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">Sair</a>
-                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -178,9 +206,9 @@
     </div>
 
     <!-- Rodapé -->
-    <footer class="bg-light text-center py-3 mt-5">
-        <div class="container">
-            <p class="mb-0">IFB Projetos &copy; 2023 - Todos os direitos reservados</p>
+    <footer class="mt-auto py-3" style="background-color: #2E7D32;">  <!-- Vermelho -->
+        <div class="container text-center text-white">
+            © 2025 Instituto Federal de Brasília - IFLabs
         </div>
     </footer>
 
