@@ -159,16 +159,6 @@
           <form id="nomeForm" method="POST" action="/perfil/editar_nome" class="mb-2">
             <div class="d-flex justify-content-center align-items-center gap-2">
               <h3 id="userNameDisplay" class="d-inline">{{ user.nome }}</h3>
-              <input type="text" id="userNameInput" name="nome" class="form-control d-none" style="max-width: 250px;" value="{{ user.nome }}" />
-              <button type="button" id="editNameBtn" class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-pencil"></i> Editar Nome
-              </button>
-              <button type="submit" id="saveNameBtn" class="btn btn-success btn-sm d-none">
-                <i class="bi bi-check-circle"></i> Salvar Nome
-              </button>
-              <button type="button" id="cancelNameBtn" class="btn btn-secondary btn-sm d-none">
-                Cancelar
-              </button>
             </div>
           </form>
 
@@ -194,7 +184,7 @@
         </div>
         <div class="card-body">
           <form id="sobreForm" method="POST" action="/perfil/editar" class="mb-2">
-            <textarea name="sobre" id="sobreInput" class="form-control mb-2" rows="3">{{ user.sobre }}</textarea>
+            <textarea name="sobre" id="sobreInput" class="form-control mb-2" rows="3">{{ user.sobre if user.sobre else "" }}</textarea>
             <button type="submit" class="btn btn-outline-primary btn-sm">Salvar Sobre</button>
           </form>
         </div>
