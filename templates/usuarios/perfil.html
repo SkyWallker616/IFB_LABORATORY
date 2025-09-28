@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<title>Perfil do Usuário - IFB Projetos</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+<style>
+    :root {
+        --bs-primary: #2d7a32 !important;
+        --bs-primary-rgb: 45, 122, 50 !important;
+        --bs-link-color: #2d7a32 !important;
+        --bs-link-hover-color: #215b25 !important;
+    }
+    .bg-primary, .navbar, .card-header.bg-primary {
+        background-color: #2d7a32 !important;
+    }
+    .navbar-brand, .navbar-nav .nav-link, .text-white, .btn-primary, .card-header.bg-primary {
+        color: #fff !important;
+    }
+    .navbar-nav .nav-link.active, .navbar-nav .nav-link:focus, .navbar-nav .nav-link:hover {
+        color: #b6e2b8 !important;
+    }
+    .btn-primary {
+        background-color: #2d7a32 !important;
+        border-color: #2d7a32 !important;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+        background-color: #215b25 !important;
+        border-color: #215b25 !important;
+    }
+    .btn-outline-primary {
+        color: #2d7a32 !important;
+        border-color: #2d7a32 !important;
+    }
+    .btn-outline-primary:hover, .btn-outline-primary:focus {
+        background-color: #2d7a32 !important;
+        color: #fff !important;
+        border-color: #2d7a32 !important;
+    }
+    .badge.bg-primary, .list-group-item.active {
+        background-color: #2d7a32 !important;
+        color: #fff !important;
+        border-color: #2d7a32 !important;
+    }
+    .form-check-input:checked {
+        background-color: #2d7a32 !important;
+        border-color: #2d7a32 !important;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #2d7a32 !important;
+        box-shadow: 0 0 0 0.2rem rgba(45, 122, 50, 0.25) !important;
+    }
+    .alert-success {
+        background-color: #d1e7dd !important;
+        color: #215b25 !important;
+        border-color: #badbcc !important;
+    }
+    footer.bg-light {
+        background-color: #fff !important;
+        color: #2d7a32 !important;
+        border-top: 1px solid #2d7a32 !important;
+    }
+    img[src*="ui-avatars.com"] {
+        background-color: #2d7a32 !important;
+    }
+    /* Força o avatar padrão para verde */
+    img[src*="ui-avatars.com"][src*="background=0D6EFD"] {
+        filter: hue-rotate(110deg) saturate(2.5);
+    }
+</style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2E7D32;">  <!-- Verde escuro -->
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/iflab_logo.png') }}" alt="IFB" height="30" class="d-inline-block align-top me-2">
+        IFB LABs
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('listar_projetos') }}">Projetos</a>
+            </li>
+            {% if current_user.is_authenticated and current_user.tipo == 'professor' %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('criar_projeto') }}">Criar Projeto</a>
+            </li>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.tipo == 'admin' %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Painel Admin</a>
+            </li>
+            {% endif %}
+        </ul>
+        <ul class="navbar-nav">
+            {% if current_user.is_authenticated %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i> {{ current_user.nome }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ url_for('perfil') }}">Meu Perfil</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">Sair</a></li>
+                </ul>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('login') }}">Entrar</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('register') }}">Cadastrar</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container mt-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="container py-5">
+  <div class="row">
+    <!-- Coluna Esquerda -->
+    <div class="col-md-4">
+      <div class="card mb-4 text-center">
+        <div class="card-body">
+          <!-- Avatar e Alterar Foto -->
+          <form id="fotoForm" method="POST" action="/perfil/alterar_foto" enctype="multipart/form-data">
+            {% if user.foto_perfil %}
+              <img id="avatarImg" src="{{ url_for('static', filename='uploads/' ~ user.foto_perfil) }}" alt="Avatar" class="rounded-circle mb-3" width="150" height="150" />
+            {% else %}
+              <img id="avatarImg" src="https://ui-avatars.com/api/?name={{ user.nome|replace(' ', '+') }}&background=0D6EFD&color=fff&size=150" alt="Avatar" class="rounded-circle mb-3" width="150" height="150" />
+            {% endif %}
+            <input type="file" id="avatarInput" name="foto" accept="image/*" class="d-none" onchange="this.form.submit()" />
+            <button type="button" id="uploadAvatar" class="btn btn-outline-secondary btn-sm mb-3">
+              <i class="bi bi-upload"></i> Alterar Foto
+            </button>
+          </form>
+
+          <!-- Nome do usuário -->
+          <form id="nomeForm" method="POST" action="/perfil/editar_nome" class="mb-2">
+            <div class="d-flex justify-content-center align-items-center gap-2">
+              <h3 id="userNameDisplay" class="d-inline">{{ user.nome }}</h3>
+            </div>
+          </form>
+
+          <p class="text-muted mt-3">
+            <i class="bi bi-person-badge"></i> <span id="display_tipo">{{ user.tipo }}</span><br />
+            <span id="display_curso">{{ user.curso }}</span>
+          </p>
+
+          <div class="d-flex flex-wrap justify-content-center gap-2 mb-3" id="display_areas">
+            {% if user.areas_interesse %}
+                {% for area in user.areas_interesse.split(',') %}
+                    <span class="badge bg-primary">{{ area }}</span>
+                {% endfor %}
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h5>Sobre</h5>
+        </div>
+        <div class="card-body">
+          <form id="sobreForm" method="POST" action="/perfil/editar" class="mb-2">
+            <textarea name="sobre" id="sobreInput" class="form-control mb-2" rows="3">{{ user.sobre if user.sobre else "" }}</textarea>
+            <button type="submit" class="btn btn-outline-primary btn-sm">Salvar Sobre</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna Direita -->
+    <div class="col-md-8">
+      {% if user.tipo == 'professor' %}
+        <div class="card mb-4">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5>Projetos Criados</h5>
+            <a href="/projetos/criar" class="btn btn-sm btn-primary" id="newProjectBtn">
+              <i class="bi bi-plus"></i> Novo Projeto
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="list-group" id="projectList">
+              {% for projeto in user.projetos %}
+              <a href="/projetos/{{ projeto.id }}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">{{ projeto.titulo }}</h6>
+                  <small class="text-muted">{{ projeto.status }}</small>
+                </div>
+                <p class="mb-1">{{ projeto.descricao[:100] }}{% if projeto.descricao|length > 100 %}...{% endif %}</p>
+                <small class="text-muted">{{ projeto.membros|length }} candidatura(s)</small>
+              </a>
+              {% else %}
+              <div class="text-muted">Nenhum projeto criado.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% elif user.tipo == 'aluno' %}
+        <div class="card mb-4">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5>Projetos Submetidos</h5>
+          </div>
+          <div class="card-body">
+            <div class="list-group" id="projectList">
+              {% set projetos_submetidos = [] %}
+              {% for membro in user.membros_projeto if membro.status == 'aceito' or membro.status == 'pendente' %}
+                {% set _ = projetos_submetidos.append(membro.projeto) %}
+              {% endfor %}
+              {% for projeto in projetos_submetidos %}
+              <a href="/projetos/{{ projeto.id }}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">{{ projeto.titulo }}</h6>
+                  <small class="text-muted">{{ projeto.status }}</small>
+                </div>
+                <p class="mb-1">{{ projeto.descricao[:100] }}{% if projeto.descricao|length > 100 %}...{% endif %}</p>
+              </a>
+              {% else %}
+              <div class="text-muted">Nenhum projeto submetido.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+    <footer class="mt-auto py-3" style="background-color: #2E7D32;">  <!-- Vermelho -->
+        <div class="container text-center text-white">
+            © 2025 Instituto Federal de Brasília - IFLabs
+        </div>
+    </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/perfil.js"></script>
+
+</body>
+</html>
