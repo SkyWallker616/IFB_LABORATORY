@@ -1,29 +1,29 @@
-/* Força verde IFB em todos os elementos Bootstrap e sobrescreve azul do Bootstrap 5 */
+/* Paleta e tema base */
 :root {
-    --verde-ifb: #2E7D32;
-    --branco: #FFFFFF;
-}
-
-/* Cores da paleta */
-:root {
-    --verde-ifb: #2E7D32;  /* Verde IFB */
-    --vermelho-ifb: #388e3c;  /* Verde escuro para botões de alerta */
+    --verde-ifb: #2E7D32;             /* Primária */
+    --verde-ifb-escuro: #215b25;      /* Hover/Active */
+    --verde-ifb-claro: #e8f5e9;       /* Destaques claros */
     --branco: #FFFFFF;
     --cinza-claro: #F8F9FA;
+    --sombra-soft: 0 8px 24px rgba(46, 125, 50, 0.12);
+    --radius: 12px;
 }
 
 /* Estilos gerais */
 body {
     background-color: var(--branco);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    color: #2c2c2c;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Navbar personalizada */
 .navbar {
-    box-shadow: 0 2px 4px rgba(46, 125, 50, 0.1);
+    box-shadow: var(--sombra-soft);
     background-color: var(--verde-ifb) !important;
 }
 
@@ -31,9 +31,10 @@ body {
     color: var(--branco) !important;
 }
 
-.navbar .nav-link.active, .navbar .nav-link:focus, .navbar .nav-link:hover {
-    color: #e8f5e9 !important;
-    background-color: var(--verde-ifb) !important;
+.navbar .nav-link.active,
+.navbar .nav-link:focus,
+.navbar .nav-link:hover {
+    color: var(--verde-ifb-claro) !important;
 }
 
 /* Botões */
@@ -41,7 +42,8 @@ body {
     background-color: var(--verde-ifb) !important;
     border-color: var(--verde-ifb) !important;
     color: var(--branco) !important;
-    box-shadow: none !important;
+    box-shadow: 0 6px 16px rgba(46, 125, 50, 0.25) !important;
+    transition: transform .15s ease, box-shadow .15s ease;
 }
 
 .btn-outline-primary, .btn-outline-primary:visited, .btn-outline-primary:active, .btn-outline-primary:focus, .btn-outline-primary:hover {
@@ -55,6 +57,9 @@ body {
     color: var(--branco) !important;
 }
 
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(46,125,50,.28)!important; }
+.btn-primary:active { transform: translateY(0); }
+
 .btn-danger {
     background-color: var(--vermelho-ifb);
     border-color: var(--vermelho-ifb);
@@ -63,33 +68,21 @@ body {
 /* Cards */
 .card {
     border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    transition: transform 0.2s;
-    border-radius: 8px;
+    box-shadow: var(--sombra-soft);
+    transition: transform .2s ease, box-shadow .2s ease;
+    border-radius: var(--radius);
 }
 
-.card:hover {
-    transform: translateY(-2px);
-}
+.card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(46,125,50,.18); }
 
-.card-header {
-    background-color: var(--verde-ifb);
-    color: white;
-    border-radius: 8px 8px 0 0 !important;
-}
+.card-header { background-color: var(--verde-ifb); color: white; border-radius: var(--radius) var(--radius) 0 0 !important; }
 
 /* Alertas */
-.alert-danger {
-    background-color: #FFEBEE;
-    border-color: green;
-    color: var(--vermelho-ifb);
-}
+.alert-danger { background-color: #ffebee; border-color: #ffcdd2; color: #c62828; }
 
 /* Formulários */
-.form-control:focus {
-    border-color: var(--verde-ifb);
-    box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.25);
-}
+.form-control { border-radius: 10px; }
+.form-control:focus { border-color: var(--verde-ifb); box-shadow: 0 0 0 0.25rem rgba(46,125,50,.2); }
 
 /* Links */
 a {
@@ -97,14 +90,11 @@ a {
 }
 
 a:hover {
-    color: green;
+    color: var(--verde-ifb-escuro);
 }
 
 /* Footer fixo no rodapé */
-footer {
-    background-color: var(--vermelho-ifb) !important;
-    color: white;
-}
+footer { background-color: var(--verde-ifb) !important; color: white; }
 
 footer.bg-light {
     background-color: var(--branco) !important;
@@ -133,9 +123,7 @@ footer.bg-light {
 }
 
 /* Corrige avatar do professor para verde */
-.card-body img[src*="ui-avatars.com"] {
-    filter: hue-rotate(80deg) saturate(2.5) !important;
-}
+.card-body img[src*="ui-avatars.com"] { filter: hue-rotate(80deg) saturate(2.5) !important; }
 
 /* Remove azul do Bootstrap 5 */
 .bg-primary, .text-primary, .border-primary, .btn-primary, .btn-outline-primary, .badge.bg-primary, .navbar.bg-primary, .navbar-dark.bg-primary, .navbar .navbar-brand, .navbar .navbar-toggler-icon {
@@ -154,3 +142,15 @@ footer.bg-light {
         margin-bottom: 1rem;
     }
 }
+
+/* Animações suaves */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in { animation: fadeInUp .35s ease both; }
+
+/* Logo responsiva e inteligente */
+.navbar-brand img { height: 28px; transition: transform .2s ease, filter .2s ease; }
+.navbar-brand:hover img { transform: scale(1.03); filter: drop-shadow(0 3px 8px rgba(46,125,50,.25)); }

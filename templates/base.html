@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}IF_Labs{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2E7D32;">  <!-- Verde escuro -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #2E7D32;">  <!-- Verde escuro -->
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 <img src="{{ url_for('static', filename='images/iflab_logo.png') }}" alt="IFB" height="30" class="d-inline-block align-top me-2">
                 IFB LABs
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegação">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -60,7 +61,7 @@
         </div>
     </nav>
 
-    <main class="container my-4 flex-grow-1">
+    <main class="container my-4 flex-grow-1 animate-in">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -75,7 +76,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="mt-auto py-3" style="background-color: #D32F2F;">  <!-- Vermelho -->
+    <footer class="mt-auto py-3" style="background-color: #2E7D32;">
         <div class="container text-center text-white">
             © 2025 Instituto Federal de Brasília - IFLabs
         </div>

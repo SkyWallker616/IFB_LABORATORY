@@ -3,40 +3,38 @@
 {% block title %}Início - IFB Projetos{% endblock %}
 
 {% block content %}
-<!-- Mensagem de Boas-Vindas -->
-<div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h2>Bem-vindo ao IFB_LAB</h2>
+<!-- Hero -->
+<section class="mb-4 animate-in">
+  <div class="p-4 p-md-5 rounded-3" style="background: linear-gradient(180deg, rgba(46,125,50,.1) 0%, rgba(46,125,50,.06) 100%); border: 1px solid rgba(46,125,50,.12);">
+    <h1 class="display-6 fw-semibold" style="font-family: 'Poppins', sans-serif;">Bem-vindo ao IFB_LAB</h1>
+    <p class="lead mb-4">Conectando professores e alunos para desenvolver projetos acadêmicos e de pesquisa.</p>
+    {% if not current_user.is_authenticated %}
+    <div class="d-grid gap-2 d-sm-flex">
+      <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4">Cadastre-se</a>
+      <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg px-4">Entrar</a>
     </div>
-    <div class="card-body">
-        <p class="lead">Conectando professores e alunos para desenvolver projetos acadêmicos e de pesquisa.</p>
-
-        {% if not current_user.is_authenticated %}
-        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-md-2">Cadastre-se</a>
-            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">Entrar</a>
-        </div>
-        {% endif %}
-    </div>
-</div>
+    {% endif %}
+  </div>
+  </section>
 
 <!-- Projetos Recentes -->
-<div class="card">
-    <div class="card-header bg-primary text-white">
-        <h5>Projetos mais recentes</h5>
+<div class="card animate-in">
+  <div class="card-header bg-primary text-white d-flex align-items-center">
+    <h5 class="mb-0">Projetos mais recentes</h5>
+  </div>
+  <div class="card-body">
+    <div class="list-group">
+      {% for projeto in projetos %}
+      <a href="{{ url_for('detalhes_projeto', id=projeto.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="border-radius: 10px; margin-bottom: .5rem;">
+        <div>
+          <h6 class="mb-1">{{ projeto.titulo }}</h6>
+          <small class="text-muted">{{ projeto.area_conhecimento }}</small>
+        </div>
+        <span class="badge bg-light text-primary">{{ projeto.status }}</span>
+      </a>
+      {% endfor %}
     </div>
-    <div class="card-body">
-        <ul class="list-group list-group-flush">
-            {% for projeto in projetos %}
-            <li class="list-group-item">
-                <a href="{{ url_for('detalhes_projeto', id=projeto.id) }}" class="text-decoration-none">
-                    <h6>{{ projeto.titulo }}</h6>
-                    <small class="text-muted">{{ projeto.area_conhecimento }}</small>
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-        <a href="{{ url_for('listar_projetos') }}" class="btn btn-outline-primary btn-sm mt-3 float-end">Ver todos</a>
-    </div>
+    <a href="{{ url_for('listar_projetos') }}" class="btn btn-outline-primary btn-sm mt-3 float-end">Ver todos</a>
+  </div>
 </div>
 {% endblock %}
