@@ -63,7 +63,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 class LoginForm(FlaskForm):
     username = StringField('Nome de Usuário', validators=[DataRequired()])
-    password = PasswordField('Senha', validators=[DataRequired()])
+    password = PasswordField('Senha', validators=[DataRequired(), Length(min=8, message='A senha deve ter pelo menos 8 caracteres.')])
     remember_me = BooleanField('Lembrar-me')
     submit = SubmitField('Entrar')
 
@@ -91,7 +91,7 @@ class ResetPasswordRequestForm(FlaskForm):
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Nova Senha', validators=[DataRequired()])
+    password = PasswordField('Nova Senha', validators=[DataRequired(), Length(min=8, message='A senha deve ter pelo menos 8 caracteres.')])
     password2 = PasswordField('Repita a Nova Senha',
                               validators=[DataRequired(),
                                           EqualTo('password')])

@@ -83,12 +83,13 @@
 
                     <div class="mb-3">
                         {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control") }}
+                        {{ form.password(class="form-control", minlength="8") }}
                         {% if form.password.errors %}
                         <div class="invalid-feedback d-block">
                             {{ form.password.errors[0] }}
                         </div>
                         {% endif %}
+                        <div class="form-text">A senha deve ter pelo menos 8 caracteres.</div>
                     </div>
 
                     <div class="mb-3">
