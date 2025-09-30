@@ -186,7 +186,9 @@
                         <ul>
                             <li><strong>Professor:</strong> {{ projeto.autor.nome }}</li>
                             {% for membro in membros_projeto if membro.status == 'aceito' %}
-                            <li><strong>Aluno:</strong> {{ membro.matricula }}
+                            {% set aluno = None %}
+                            {% for a in alunos if a.matricula == membro.matricula %}{% set aluno = a %}{% endfor %}
+                            <li><strong>Aluno:</strong> <a href="{{ url_for('perfil', matricula=membro.matricula) }}">{{ aluno.nome if aluno else membro.matricula }}</a>
                                 {% if current_user.is_authenticated and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id %}
                                     <form method="POST" action="{{ url_for('remover_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
                                         <button type="submit" class="btn btn-outline-danger btn-sm ms-2">Remover</button>
@@ -360,7 +362,7 @@
                         </div>
                         <h5>{{ projeto.autor.nome }}</h5>
                         <p class="text-muted">{{ projeto.autor.email }}</p>
-                        <a href="/perfil" class="btn btn-outline-primary btn-sm">
+                        <a href="{{ url_for('perfil', matricula=projeto.autor.matricula) }}" class="btn btn-outline-primary btn-sm">
                             Ver Perfil Completo
                         </a>
                     </div>
