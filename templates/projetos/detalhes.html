@@ -186,8 +186,7 @@
                         <ul>
                             <li><strong>Professor:</strong> {{ projeto.autor.nome }}</li>
                             {% for membro in membros_projeto if membro.status == 'aceito' %}
-                            {% set aluno = None %}
-                            {% for a in alunos if a.matricula == membro.matricula %}{% set aluno = a %}{% endfor %}
+                            {% set aluno = alunos_por_matricula.get(membro.matricula) %}
                             <li><strong>Aluno:</strong> <a href="{{ url_for('perfil', matricula=membro.matricula) }}">{{ aluno.nome if aluno else membro.matricula }}</a>
                                 {% if current_user.is_authenticated and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id %}
                                     <form method="POST" action="{{ url_for('remover_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
@@ -198,7 +197,8 @@
                             {% endfor %}
                             {% if current_user.is_authenticated and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id %}
                                 {% for membro in membros_projeto if membro.status == 'pendente' %}
-                                <li><strong>Pendente:</strong> {{ membro.matricula }}
+                                {% set aluno = alunos_por_matricula.get(membro.matricula) %}
+                                <li><strong>Pendente:</strong> <a href="{{ url_for('perfil', matricula=membro.matricula) }}">{{ aluno.nome if aluno else membro.matricula }}</a>
                                     <form method="POST" action="{{ url_for('aceitar_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
                                         <button type="submit" class="btn btn-success btn-sm">Aceitar</button>
                                     </form>
@@ -256,23 +256,25 @@
                     </div>
                 </div>
 
+                {# Flags de permissão vindos do backend: is_professor_autor, is_aluno_membro #}
+                {% if is_professor_autor or is_aluno_membro %}
                 <div class="card mb-4">
                     <div class="card-header bg-light">
-                        <h4>Mensagem Privada para o coordenador do projeto</h4>
+                        <h4>Mensagem Privada</h4>
                     </div>
                     <div class="card-body">
                         <form method="POST" action="{{ url_for('enviar_mensagem_projeto', id=projeto.id) }}">
                             <div class="mb-2">
                                 <select class="form-select" name="destinatario" required>
                                     <option value="">Selecione destinatário</option>
-                                    {% if projeto.autor.matricula != current_user.matricula %}
+                                    {% if is_aluno_membro %}
                                         <option value="{{ projeto.autor.matricula }}">Professor: {{ projeto.autor.nome }}</option>
+                                    {% elif is_professor_autor %}
+                                        {% for membro in membros_projeto if membro.status == 'aceito' %}
+                                            {% set aluno = alunos_por_matricula.get(membro.matricula) %}
+                                            <option value="{{ membro.matricula }}">Aluno: {{ aluno.nome if aluno else membro.matricula }}</option>
+                                        {% endfor %}
                                     {% endif %}
-                                    {% for membro in membros_projeto if membro.status == 'aceito' and membro.matricula != current_user.matricula %}
-                                        {% set aluno = None %}
-                                        {% for a in alunos if a.matricula == membro.matricula %}{% set aluno = a %}{% endfor %}
-                                        <option value="{{ membro.matricula }}">Aluno: {{ aluno.nome if aluno else membro.matricula }}</option>
-                                    {% endfor %}
                                 </select>
                             </div>
                             <div class="mb-2">
@@ -282,7 +284,9 @@
                         </form>
                     </div>
                 </div>
+                {% endif %}
 
+                {% if is_professor_autor or is_aluno_membro %}
                 <div class="card mb-4">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
                         <h4>Mensagens Recebidas</h4>
@@ -293,10 +297,22 @@
                         {% if mensagens %}
                             <ul class="list-group">
                                 {% for msg in mensagens[:5] %}
+                                {% set remetente_aluno = alunos_por_matricula.get(msg.remetente_matricula) if alunos_por_matricula is defined else None %}
+                                {% set remetente_nome = remetente_aluno.nome if remetente_aluno else (projeto.autor.nome if msg.remetente_matricula == projeto.autor.matricula else msg.remetente_matricula) %}
                                 <li class="list-group-item">
-                                    <strong>De:</strong> {{ msg.remetente_matricula }}<br>
+                                    <strong>De:</strong> {{ remetente_nome }} <small class="text-muted">({{ msg.remetente_matricula }})</small><br>
                                     <span>{{ msg.conteudo }}</span><br>
                                     <small class="text-muted">{{ msg.data_envio.strftime('%d/%m/%Y %H:%M') }}</small>
+                                    {% if (current_user.is_authenticated) and (is_professor_autor or current_user.matricula == msg.destinatario_matricula) %}
+                                    <form method="POST" action="{{ url_for('enviar_mensagem_projeto', id=projeto.id) }}" class="mt-2">
+                                        <input type="hidden" name="destinatario" value="{{ msg.remetente_matricula }}">
+                                        <input type="hidden" name="resposta_a" value="{{ msg.id }}">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control" name="mensagem" placeholder="Responder ao remetente..." required>
+                                            <button type="submit" class="btn btn-outline-primary">Responder</button>
+                                        </div>
+                                    </form>
+                                    {% endif %}
                                 </li>
                                 {% endfor %}
                             </ul>
@@ -305,6 +321,7 @@
                         {% endif %}
                     </div>
                 </div>
+                {% endif %}
             </div>
 
             <div class="col-lg-4">
@@ -331,8 +348,9 @@
                         {% elif current_user.is_authenticated and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id %}
                             <h5>Candidaturas Pendentes</h5>
                             {% for membro in membros_projeto if membro.status == 'pendente' %}
+                            {% set aluno = alunos_por_matricula.get(membro.matricula) %}
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span>Aluno: {{ membro.matricula }}</span>
+                                <span>Aluno: <a href="{{ url_for('perfil', matricula=membro.matricula) }}">{{ aluno.nome if aluno else membro.matricula }}</a></span>
                                 <form method="POST" action="{{ url_for('aceitar_aluno', id=projeto.id, matricula=membro.matricula) }}" style="display:inline;">
                                     <button type="submit" class="btn btn-success btn-sm">Aceitar</button>
                                 </form>

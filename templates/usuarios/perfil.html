@@ -70,7 +70,7 @@
     }
 </style>
 </head>
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2E7D32;">  <!-- Verde escuro -->
@@ -136,7 +136,7 @@
   {% endif %}
 {% endwith %}
 
-<div class="container py-5">
+<div class="container py-5 flex-grow-1">
   <div class="row">
     <!-- Coluna Esquerda -->
     <div class="col-md-4">
@@ -150,7 +150,7 @@
               <img id="avatarImg" src="https://ui-avatars.com/api/?name={{ user.nome|replace(' ', '+') }}&background=0D6EFD&color=fff&size=150" alt="Avatar" class="rounded-circle mb-3" width="150" height="150" />
             {% endif %}
             <input type="file" id="avatarInput" name="foto" accept="image/*" class="d-none" onchange="this.form.submit()" />
-            <button type="button" id="uploadAvatar" class="btn btn-outline-secondary btn-sm mb-3">
+            <button type="button" id="uploadAvatar" class="btn btn-outline-secondary btn-sm mb-3" {% if user.tipo == 'admin' %}disabled title="Perfil de administrador não editável"{% endif %}>
               <i class="bi bi-upload"></i> Alterar Foto
             </button>
           </form>
@@ -158,7 +158,7 @@
           <!-- Nome do usuário -->
           <form id="nomeForm" method="POST" action="/perfil/editar_nome" class="mb-2">
             <div class="d-flex justify-content-center align-items-center gap-2">
-              <h3 id="userNameDisplay" class="d-inline">{{ user.nome }}</h3>
+              <h3 id="userNameDisplay" class="d-inline">{{ 'ADMIN' if user.tipo == 'admin' else user.nome }}</h3>
             </div>
           </form>
 
@@ -184,8 +184,8 @@
         </div>
         <div class="card-body">
           <form id="sobreForm" method="POST" action="/perfil/editar" class="mb-2">
-            <textarea name="sobre" id="sobreInput" class="form-control mb-2" rows="3">{{ user.sobre if user.sobre else "" }}</textarea>
-            <button type="submit" class="btn btn-outline-primary btn-sm">Salvar Sobre</button>
+            <textarea name="sobre" id="sobreInput" class="form-control mb-2" rows="3" {% if user.tipo == 'admin' %}readonly{% endif %}>{{ 'Perfil Administrador' if user.tipo == 'admin' else (user.sobre if user.sobre else "") }}</textarea>
+            <button type="submit" class="btn btn-outline-primary btn-sm" {% if user.tipo == 'admin' %}disabled{% endif %}>Salvar Sobre</button>
           </form>
         </div>
       </div>

@@ -15,7 +15,8 @@
                         <ul class="list-group">
                             {% for msg in mensagens %}
                             <li class="list-group-item">
-                                <strong>De:</strong> {{ msg.remetente_matricula }}<br>
+                                {% set nome_remetente = nomes_por_matricula.get(msg.remetente_matricula, msg.remetente_matricula) %}
+                                <strong>De:</strong> {{ nome_remetente }} <small class="text-muted">({{ msg.remetente_matricula }})</small><br>
                                 <span>{{ msg.conteudo }}</span><br>
                                 <small class="text-muted">{{ msg.data_envio.strftime('%d/%m/%Y %H:%M') }}</small>
                             </li>
@@ -23,6 +24,28 @@
                         </ul>
                     {% else %}
                         <span class="text-muted">Nenhuma mensagem recebida.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">Mensagens Enviadas</h4>
+                </div>
+                <div class="card-body">
+                    {% if mensagens_enviadas %}
+                        <ul class="list-group">
+                            {% for msg in mensagens_enviadas %}
+                            <li class="list-group-item">
+                                {% set nome_dest = nomes_por_matricula.get(msg.destinatario_matricula, msg.destinatario_matricula) %}
+                                <strong>Para:</strong> {{ nome_dest }} <small class="text-muted">({{ msg.destinatario_matricula }})</small><br>
+                                <span>{{ msg.conteudo }}</span><br>
+                                <small class="text-muted">{{ msg.data_envio.strftime('%d/%m/%Y %H:%M') }}</small>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="text-muted">Nenhuma mensagem enviada.</span>
                     {% endif %}
                 </div>
             </div>

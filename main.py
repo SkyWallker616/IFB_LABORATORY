@@ -458,10 +458,11 @@ def detalhes_projeto(id):
             matricula=current_user.matricula, id_projeto=projeto.id).first()
 
     membros_projeto = MembroProjeto.query.filter_by(id_projeto=id).all()
-    # Buscar alunos aceitos para exibir nome no dropdown
-    alunos_matriculas = [m.matricula for m in membros_projeto if m.status == 'aceito']
+    # Buscar alunos (todos os membros: aceitos e pendentes) para exibir nomes no template
+    alunos_matriculas = [m.matricula for m in membros_projeto]
     from src.models import Aluno
     alunos = Aluno.query.filter(Aluno.matricula.in_(alunos_matriculas)).all() if alunos_matriculas else []
+    alunos_por_matricula = {a.matricula: a for a in alunos}
 
     mensagens_recebidas = []
     if current_user.is_authenticated:
@@ -486,14 +487,24 @@ def detalhes_projeto(id):
                 nomes_autores[matricula] = prof.nome
             else:
                 nomes_autores[matricula] = matricula
+    # Permissões: professor autor ou aluno aceito
+    is_professor_autor = hasattr(current_user, 'tipo') and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id
+    is_aluno_membro = False
+    if hasattr(current_user, 'tipo') and current_user.tipo == 'aluno':
+        membro_atual = MembroProjeto.query.filter_by(id_projeto=id, matricula=current_user.matricula, status='aceito').first()
+        is_aluno_membro = membro_atual is not None
+
     return render_template('projetos/detalhes.html',
                            projeto=projeto,
                            candidatura_atual=candidatura_atual,
                            membros_projeto=membros_projeto,
                            mensagens_recebidas=mensagens_recebidas,
                            alunos=alunos,
+                           alunos_por_matricula=alunos_por_matricula,
                            comentarios=comentarios,
-                           nomes_autores=nomes_autores)
+                           nomes_autores=nomes_autores,
+                           is_professor_autor=is_professor_autor,
+                           is_aluno_membro=is_aluno_membro)
 
 
 @app.route('/projetos/criar', methods=['GET', 'POST'])
@@ -607,12 +618,20 @@ def perfil():
             user = Professor.query.options(joinedload(getattr(Professor, 'projetos'))).filter_by(matricula=current_user.matricula).first()
         else:
             user = current_user
+    # Ajustes de exibição para Admin: nome e sobre fixos
+    if hasattr(user, 'tipo') and user.tipo == 'admin':
+        setattr(user, 'nome', 'ADMIN')
+        setattr(user, 'sobre', 'Perfil Administrador')
     return render_template('usuarios/perfil.html', user=user)
 
 
 @app.route('/perfil/editar', methods=['POST'])
 @login_required
 def editar_perfil():
+    # Impedir edição para administrador
+    if hasattr(current_user, 'tipo') and current_user.tipo == 'admin':
+        flash('Administradores não podem editar o perfil.', 'warning')
+        return redirect(url_for('perfil'))
     sobre = request.form.get('sobre', '').strip()
     if sobre:
         current_user.sobre = sobre
@@ -631,6 +650,10 @@ def editar_perfil():
 @app.route('/perfil/editar_nome', methods=['POST'])
 @login_required
 def editar_nome():
+    # Impedir edição para administrador
+    if hasattr(current_user, 'tipo') and current_user.tipo == 'admin':
+        flash('Administradores não podem editar o nome.', 'warning')
+        return redirect(url_for('perfil'))
     novo_nome = request.form.get('nome', '').strip()
     if not novo_nome:
         flash('Nome obregatório.', 'danger')
@@ -644,6 +667,10 @@ def editar_nome():
 @app.route('/perfil/alterar_foto', methods=['POST'])
 @login_required
 def alterar_foto():
+    # Impedir alteração de foto para administrador
+    if hasattr(current_user, 'tipo') and current_user.tipo == 'admin':
+        flash('Administradores não podem alterar a foto do perfil.', 'warning')
+        return redirect(url_for('perfil'))
     if 'foto' not in request.files:
         flash('Arquivo não enviado.', 'danger')
         return redirect(url_for('perfil'))
@@ -751,12 +778,32 @@ def remover_aluno(id, matricula):
 @app.route('/projetos/<int:id>/mensagens')
 @login_required
 def mensagens_projeto(id):
-    msgs = MensagemProjeto.query.filter_by(id_projeto=id, destinatario_matricula=current_user.matricula).order_by(MensagemProjeto.data_envio.desc()).all()
+    projeto = Projeto.query.get_or_404(id)
+    # Somente professor autor ou aluno aceito pode ver mensagens do projeto
+    is_professor_autor = hasattr(current_user, 'tipo') and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id
+    is_aluno_membro = False
+    if hasattr(current_user, 'tipo') and current_user.tipo == 'aluno':
+        membro = MembroProjeto.query.filter_by(id_projeto=id, matricula=current_user.matricula, status='aceito').first()
+        is_aluno_membro = membro is not None
+    if not (is_professor_autor or is_aluno_membro):
+        abort(403)
+
+    msgs_recebidas = MensagemProjeto.query.filter_by(id_projeto=id, destinatario_matricula=current_user.matricula).order_by(MensagemProjeto.data_envio.desc()).all()
     # Marcar como lidas
-    for msg in msgs:
+    for msg in msgs_recebidas:
         msg.lida = True
+    # Mensagens enviadas pelo usuário atual neste projeto
+    msgs_enviadas = MensagemProjeto.query.filter_by(id_projeto=id, remetente_matricula=current_user.matricula).order_by(MensagemProjeto.data_envio.desc()).all()
     db.session.commit()
-    return render_template('projetos/mensagens.html', mensagens=msgs, projeto_id=id)
+    # Construir mapa de nomes por matrícula
+    from src.models import Aluno, Professor
+    matriculas = set([m.remetente_matricula for m in msgs_recebidas] + [m.destinatario_matricula for m in msgs_enviadas])
+    alunos = Aluno.query.filter(Aluno.matricula.in_(matriculas)).all() if matriculas else []
+    profs = Professor.query.filter(Professor.matricula.in_(matriculas)).all() if matriculas else []
+    nomes_por_matricula = {a.matricula: a.nome for a in alunos}
+    for p in profs:
+        nomes_por_matricula[p.matricula] = p.nome
+    return render_template('projetos/mensagens.html', mensagens=msgs_recebidas, mensagens_enviadas=msgs_enviadas, nomes_por_matricula=nomes_por_matricula, projeto_id=id)
 
 @app.route('/projetos/<int:id>/mensagens/notificacoes')
 @login_required
@@ -837,9 +884,20 @@ def comentar_projeto(id):
 def enviar_mensagem_projeto(id):
     destinatario = request.form.get('destinatario')
     conteudo = request.form.get('mensagem')
+    resposta_a_id = request.form.get('resposta_a')
     if not destinatario or not conteudo:
         flash('Preencha todos os campos para enviar a mensagem.', 'danger')
         return redirect(url_for('detalhes_projeto', id=id))
+
+    # Restringir quem pode enviar mensagem: professor autor do projeto ou aluno aceito no projeto
+    projeto = Projeto.query.get_or_404(id)
+    is_professor_autor = hasattr(current_user, 'tipo') and current_user.tipo == 'professor' and current_user.matricula == projeto.user_id
+    is_aluno_membro = False
+    if hasattr(current_user, 'tipo') and current_user.tipo == 'aluno':
+        membro = MembroProjeto.query.filter_by(id_projeto=id, matricula=current_user.matricula, status='aceito').first()
+        is_aluno_membro = membro is not None
+    if not (is_professor_autor or is_aluno_membro):
+        abort(403)
 
     nova_msg = MensagemProjeto(
         id_projeto=id,
@@ -847,7 +905,24 @@ def enviar_mensagem_projeto(id):
         destinatario_matricula=destinatario,
         conteudo=conteudo
     )
+    # Validação extra: o destinatário precisa ser o professor autor OU um aluno aceito do projeto
+    destinatario_valido = False
+    if destinatario == projeto.user_id:
+        destinatario_valido = True
+    else:
+        membro_dest = MembroProjeto.query.filter_by(id_projeto=id, matricula=destinatario, status='aceito').first()
+        destinatario_valido = membro_dest is not None
+    if not destinatario_valido:
+        abort(403)
     db.session.add(nova_msg)
+    # Se for resposta a uma mensagem recebida, marcar a original como lida
+    if resposta_a_id:
+        try:
+            original = MensagemProjeto.query.filter_by(id=int(resposta_a_id), id_projeto=id, destinatario_matricula=current_user.matricula).first()
+            if original:
+                original.lida = True
+        except (ValueError, TypeError):
+            pass
     db.session.commit()
     flash('Mensagem enviada com sucesso!', 'success')
     return redirect(url_for('detalhes_projeto', id=id))
