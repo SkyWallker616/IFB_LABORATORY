@@ -149,10 +149,12 @@
             {% else %}
               <img id="avatarImg" src="https://ui-avatars.com/api/?name={{ user.nome|replace(' ', '+') }}&background=0D6EFD&color=fff&size=150" alt="Avatar" class="rounded-circle mb-3" width="150" height="150" />
             {% endif %}
-            <input type="file" id="avatarInput" name="foto" accept="image/*" class="d-none" onchange="this.form.submit()" />
-            <button type="button" id="uploadAvatar" class="btn btn-outline-secondary btn-sm mb-3" {% if user.tipo == 'admin' %}disabled title="Perfil de administrador não editável"{% endif %}>
-              <i class="bi bi-upload"></i> Alterar Foto
-            </button>
+            {% if is_owner %}
+              <input type="file" id="avatarInput" name="foto" accept="image/*" class="d-none" onchange="this.form.submit()" />
+              <button type="button" id="uploadAvatar" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-upload"></i> Alterar Foto
+              </button>
+            {% endif %}
           </form>
 
           <!-- Nome do usuário -->
@@ -183,10 +185,14 @@
           <h5>Sobre</h5>
         </div>
         <div class="card-body">
-          <form id="sobreForm" method="POST" action="/perfil/editar" class="mb-2">
-            <textarea name="sobre" id="sobreInput" class="form-control mb-2" rows="3" {% if user.tipo == 'admin' %}readonly{% endif %}>{{ 'Perfil Administrador' if user.tipo == 'admin' else (user.sobre if user.sobre else "") }}</textarea>
-            <button type="submit" class="btn btn-outline-primary btn-sm" {% if user.tipo == 'admin' %}disabled{% endif %}>Salvar Sobre</button>
-          </form>
+          {% if is_owner %}
+            <form id="sobreForm" method="POST" action="/perfil/editar" class="mb-2">
+              <textarea name="sobre" id="sobreInput" class="form-control mb-2" rows="3">{{ user.sobre if user.sobre else "" }}</textarea>
+              <button type="submit" class="btn btn-outline-primary btn-sm">Salvar Sobre</button>
+            </form>
+          {% else %}
+            <p>{{ user.sobre if user.sobre else "Nenhuma informação disponível." }}</p>
+          {% endif %}
         </div>
       </div>
     </div>
