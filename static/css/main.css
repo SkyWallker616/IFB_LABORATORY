@@ -61,8 +61,15 @@ body {
 .btn-primary:active { transform: translateY(0); }
 
 .btn-danger {
-    background-color: var(--vermelho-ifb);
-    border-color: var(--vermelho-ifb);
+    background-color: white !important;
+    color: var(--vermelho-ifb) !important;
+    border-color: var(--vermelho-ifb) !important;
+}
+
+.btn-danger:hover, .btn-danger:focus {
+    background-color: var(--vermelho-ifb) !important;
+    color: white !important;
+    border-color: var(--vermelho-ifb) !important;
 }
 
 /* Cards */
@@ -76,6 +83,26 @@ body {
 .card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(46,125,50,.18); }
 
 .card-header { background-color: var(--verde-ifb); color: white; border-radius: var(--radius) var(--radius) 0 0 !important; }
+
+.card-header.bg-light {
+    background-color: var(--verde-ifb) !important;
+    color: var(--branco) !important;
+    font-weight: bold;
+    border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+
+/* Cards de mensagens */
+.card.mensagem {
+    background-color: var(--verde-ifb-escuro) !important;
+    color: var(--branco) !important;
+    border: none;
+    box-shadow: var(--sombra-soft);
+}
+
+.card.mensagem .card-body {
+    color: var(--branco) !important;
+    font-weight: bold;
+}
 
 /* Alertas */
 .alert-danger { background-color: #ffebee; border-color: #ffcdd2; color: #c62828; }

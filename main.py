@@ -465,7 +465,7 @@ def detalhes_projeto(id):
     alunos_por_matricula = {a.matricula: a for a in alunos}
 
     mensagens_recebidas = []
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and hasattr(current_user, 'matricula'):
         from src.models import MensagemProjeto
         mensagens_recebidas = MensagemProjeto.query.filter_by(id_projeto=id, destinatario_matricula=current_user.matricula).order_by(MensagemProjeto.data_envio.desc()).all()
 
@@ -623,7 +623,10 @@ def perfil():
         setattr(user, 'nome', 'ADMIN')
         setattr(user, 'sobre', 'Perfil Administrador')
     # Verificar se o perfil pertence ao usuário logado
-    is_owner = user.matricula == current_user.matricula
+    is_owner = False
+    if hasattr(user, 'matricula') and hasattr(current_user, 'matricula'):
+        is_owner = user.matricula == current_user.matricula
+
     return render_template('usuarios/perfil.html', user=user, is_owner=is_owner)
 
 
