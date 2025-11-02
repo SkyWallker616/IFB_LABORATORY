@@ -622,7 +622,9 @@ def perfil():
     if hasattr(user, 'tipo') and user.tipo == 'admin':
         setattr(user, 'nome', 'ADMIN')
         setattr(user, 'sobre', 'Perfil Administrador')
-    return render_template('usuarios/perfil.html', user=user)
+    # Verificar se o perfil pertence ao usuário logado
+    is_owner = user.matricula == current_user.matricula
+    return render_template('usuarios/perfil.html', user=user, is_owner=is_owner)
 
 
 @app.route('/perfil/editar', methods=['POST'])
