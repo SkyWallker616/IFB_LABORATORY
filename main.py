@@ -50,6 +50,9 @@ db.init_app(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+# Mensagem personalizada quando @login_required redireciona para a página de login
+login_manager.login_message = "Por favor, faça login para acessar esta página."
+login_manager.login_message_category = 'warning'
 mail = Mail(app)
 
 # Cria pasta de uploads se não existir
@@ -160,9 +163,6 @@ class EditarPerfilForm(FlaskForm):
 # ROTAS PRINCIPAIS
 # ======================================
 
-
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
