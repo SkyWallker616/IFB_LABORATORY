@@ -38,7 +38,7 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['POSTS_PER_PAGE'] = 10
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
-# Configurações de email (substitua com seus dados)
+# Configurações de email 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
